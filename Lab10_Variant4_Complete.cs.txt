@@ -1,0 +1,247 @@
+using System;
+using System.Collections.Generic;
+
+public class Airplane
+{
+    public string Model { get; set; }
+    public string Airline { get; set; }
+    public int PassengerCapacity { get; set; }
+    public double MaxSpeed { get; set; }
+    public int EngineCount { get; set; }
+    public int YearOfManufacture { get; set; }
+    public bool IsInternational { get; set; }
+
+    public double PassengersPerEngine
+    {
+        get
+        {
+            if (EngineCount == 0) return 0;
+            return (double)PassengerCapacity / EngineCount;
+        }
+    }
+    
+    public Airplane()
+    {
+        Model = "N/A";
+        Airline = "N/A";
+    }
+}
+
+public class Program
+{
+    static List<Airplane> airplaneDatabase = new List<Airplane>();
+
+    public static void Main()
+    {
+        while (true)
+        {
+            DisplayAirplanes();
+            Console.WriteLine("--- Панель інструментів (Варіант 4) ---");
+            Console.WriteLine("1. Додати літак");
+            Console.WriteLine("2. Редагувати літак");
+            Console.WriteLine("3. Видалити літак");
+            Console.WriteLine("4. Очистити таблицю");
+            Console.WriteLine("5. Вихід");
+            Console.Write("Ваш вибір: ");
+
+            string choice = Console.ReadLine();
+
+            switch (choice)
+            {
+                case "1":
+                    AddAirplane();
+                    break;
+                case "2":
+                    EditAirplane();
+                    break;
+                case "3":
+                    DeleteAirplane();
+                    break;
+                case "4":
+                    ClearAirplanes();
+                    break;
+                case "5":
+                    return;
+                default:
+                    Console.WriteLine("Невірний вибір. Натисніть Enter...");
+                    Console.ReadLine();
+                    break;
+            }
+        }
+    }
+
+    static void DisplayAirplanes()
+    {
+        Console.Clear();
+        Console.WriteLine("--- Таблиця літаків (DataGridView) ---");
+        
+        if (airplaneDatabase.Count == 0)
+        {
+            Console.WriteLine("[Таблиця порожня]");
+        }
+        else
+        {
+            string header = String.Format("{0,-3} | {1,-20} | {2,-15} | {3,-5} | {4,-8} | {5,-4} | {6,-5} | {7,-8}",
+                "№", "Модель", "Авіалінія", "Пас.", "Швидкість", "Рік", "Міжн.", "Пас/Двиг");
+            Console.WriteLine(header);
+            Console.WriteLine(new string('-', 85));
+
+            for (int i = 0; i < airplaneDatabase.Count; i++)
+            {
+                Airplane plane = airplaneDatabase[i];
+                string line = String.Format("{0,-3} | {1,-20} | {2,-15} | {3,-5} | {4,-8:F0} | {5,-4} | {6,-5} | {7,-8:F2}",
+                    (i + 1),
+                    plane.Model,
+                    plane.Airline,
+                    plane.PassengerCapacity,
+                    plane.MaxSpeed,
+                    plane.YearOfManufacture,
+                    plane.IsInternational ? "Так" : "Ні",
+                    plane.PassengersPerEngine
+                );
+                Console.WriteLine(line);
+            }
+        }
+        Console.WriteLine(new string('-', 85) + "\n");
+    }
+
+    static void AddAirplane()
+    {
+        Airplane newPlane = new Airplane();
+        bool success = ShowAirplaneDialog(newPlane, "Додавання нового літака");
+
+        if (success)
+        {
+            airplaneDatabase.Add(newPlane);
+            Console.WriteLine("\nЛітак успішно додано. Натисніть Enter...");
+        }
+        else
+        {
+            Console.WriteLine("\nДодавання скасовано. Натисніть Enter...");
+        }
+        Console.ReadLine();
+    }
+
+    static void EditAirplane()
+    {
+        if (airplaneDatabase.Count == 0)
+        {
+            Console.WriteLine("Немає чого редагувати. Натисніть Enter...");
+            Console.ReadLine();
+            return;
+        }
+
+        Console.Write("Введіть номер літака для редагування (1, 2...): ");
+        if (!int.TryParse(Console.ReadLine(), out int index) || index < 1 || index > airplaneDatabase.Count)
+        {
+            Console.WriteLine("Невірний номер. Натисніть Enter...");
+            Console.ReadLine();
+            return;
+        }
+
+        Airplane planeToEdit = airplaneDatabase[index - 1];
+        bool success = ShowAirplaneDialog(planeToEdit, $"Редагування: {planeToEdit.Model}");
+
+        if (success)
+        {
+            Console.WriteLine("\nЛітак успішно оновлено. Натисніть Enter...");
+        }
+        else
+        {
+            Console.WriteLine("\nРедагування скасовано. Натисніть Enter...");
+        }
+        Console.ReadLine();
+    }
+
+    static void DeleteAirplane()
+    {
+        if (airplaneDatabase.Count == 0)
+        {
+            Console.WriteLine("Немає чого видаляти. Натисніть Enter...");
+            Console.ReadLine();
+            return;
+        }
+        
+        Console.Write("Введіть номер літака для видалення (1, 2...): ");
+        if (!int.TryParse(Console.ReadLine(), out int index) || index < 1 || index > airplaneDatabase.Count)
+        {
+            Console.WriteLine("Невірний номер. Натисніть Enter...");
+            Console.ReadLine();
+            return;
+        }
+
+        Airplane planeToDelete = airplaneDatabase[index - 1];
+        Console.Write($"Ви впевнені, що хочете видалити {planeToDelete.Model}? (y/n): ");
+        if (Console.ReadLine().ToLower() == "y")
+        {
+            airplaneDatabase.RemoveAt(index - 1);
+            Console.WriteLine("Літак видалено. Натисніть Enter...");
+        }
+        else
+        {
+            Console.WriteLine("Видалення скасовано. Натисніть Enter...");
+        }
+        Console.ReadLine();
+    }
+
+    static void ClearAirplanes()
+    {
+        Console.Write("Ви впевнені, що хочете очистити всю таблицю? (y/n): ");
+        if (Console.ReadLine().ToLower() == "y")
+        {
+            airplaneDatabase.Clear();
+            Console.WriteLine("Таблицю очищено. Натисніть Enter...");
+        }
+        else
+        {
+            Console.WriteLine("Очищення скасовано. Натисніть Enter...");
+        }
+        Console.ReadLine();
+    }
+
+    static bool ShowAirplaneDialog(Airplane plane, string title)
+    {
+        try
+        {
+            Console.WriteLine($"\n--- {title} ---");
+            Console.WriteLine("(Натисніть Enter, щоб залишити поточне значення)");
+
+            Console.Write($"Модель [{plane.Model}]: ");
+            string modelInput = Console.ReadLine();
+            if (!string.IsNullOrEmpty(modelInput)) plane.Model = modelInput;
+
+            Console.Write($"Авіалінія [{plane.Airline}]: ");
+            string airlineInput = Console.ReadLine();
+            if (!string.IsNullOrEmpty(airlineInput)) plane.Airline = airlineInput;
+
+            Console.Write($"Пасажиромісткість [{plane.PassengerCapacity}]: ");
+            string capacityInput = Console.ReadLine();
+            if (!string.IsNullOrEmpty(capacityInput)) plane.PassengerCapacity = int.Parse(capacityInput);
+
+            Console.Write($"Макс. швидкість [{plane.MaxSpeed}]: ");
+            string speedInput = Console.ReadLine();
+            if (!string.IsNullOrEmpty(speedInput)) plane.MaxSpeed = double.Parse(speedInput);
+
+            Console.Write($"Кількість двигунів [{plane.EngineCount}]: ");
+            string engineInput = Console.ReadLine();
+            if (!string.IsNullOrEmpty(engineInput)) plane.EngineCount = int.Parse(engineInput);
+
+            Console.Write($"Рік випуску [{plane.YearOfManufacture}]: ");
+            string yearInput = Console.ReadLine();
+            if (!string.IsNullOrEmpty(yearInput)) plane.YearOfManufacture = int.Parse(yearInput);
+
+            Console.Write($"Міжнародний (y/n) [{plane.IsInternational}]: ");
+            string intlInput = Console.ReadLine().ToLower();
+            if (intlInput == "y") plane.IsInternational = true;
+            if (intlInput == "n") plane.IsInternational = false;
+
+            Console.Write("\nЗберегти зміни? (y - Ok / n - Скасувати): ");
+            return Console.ReadLine().ToLower() == "y";
+        }
+        catch (FormatException)
+        {
+            Console.WriteLine("Помилка формату! Введено не число.");
+            return false;
+        }
+    }
+}
