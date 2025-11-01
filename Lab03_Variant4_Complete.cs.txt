@@ -1,0 +1,110 @@
+using System;
+using System.Text; 
+
+namespace LabWork3
+{
+    class Program
+    {
+        /// <summary>
+        /// Обчислює функцію y = cos^4(x1 - sqrt(x2 / (x1 + 53*x2^2)))
+        /// та перевіряє область визначення функції.
+        /// </summary>
+        /// <param name="x">Аргумент, від якого залежать x1 та x2.</param>
+        /// <returns>Значення y або double.NaN у разі помилки ООФ.</returns>
+        static double Function(double x)
+        {
+            double x1 = 2 * x;
+            double x2 = 5 * x;
+
+            double denominator = x1 + 53 * Math.Pow(x2, 2);
+            
+            // 1. Перевірка на ділення на нуль
+            if (denominator == 0)
+            {
+                return double.NaN;
+            }
+            
+            double fraction = x2 / denominator;
+            
+            // 2. Перевірка на корінь з від'ємного числа
+            if (fraction < 0)
+            {
+                return double.NaN;
+            }
+            
+            double root = Math.Sqrt(fraction);
+            double arg = x1 - root; 
+            
+            // y = cos^4(...)
+            double y = Math.Pow(Math.Cos(arg), 4); 
+
+            return y;
+        }
+
+        static void Main(string[] args)
+        {
+            // --- ОСЬ ВИПРАВЛЕННЯ (UTF-8) ---
+            // Встановлюємо UTF-8 для коректного відображення українських символів
+            Console.OutputEncoding = Encoding.UTF8; 
+            Console.InputEncoding = Encoding.UTF8; 
+
+        startOfCalculations: // Мітка для оператора goto
+
+            // --- Блок введення ---
+            Console.Write("Введіть початок відрізку інтегрування a: ");
+            string sa = Console.ReadLine();
+            double a = double.Parse(sa);
+
+            Console.Write("Введіть кінець відрізку інтегрування b: ");
+            string sb = Console.ReadLine();
+            double b = double.Parse(sb);
+
+            Console.Write("Введіть кількість ділянок n: ");
+            string sn = Console.ReadLine();
+            int n = int.Parse(sn); 
+
+            // --- Блок обчислення ---
+            double dx = (b - a) / n; 
+            double intgrl = 0;       
+            bool errorOccurred = false;
+
+            for (int i = 0; i < n; i++)
+            {
+                // Метод правих прямокутників: беремо значення функції на правій границі
+                double x_right = a + (i + 1) * dx;
+                double y = Function(x_right);
+
+                // Перевірка на повернення помилки ООФ
+                if (double.IsNaN(y))
+                {
+                    Console.WriteLine($"ПОМИЛКА: Неможливо обчислити функцію при x = {x_right:F5}.");
+                    Console.WriteLine("Перевірте область визначення. Розрахунок перервано.");
+                    errorOccurred = true;
+                    break; // Перериваємо цикл
+                }
+                
+                // Додаємо площу прямокутника до суми
+                intgrl += y * dx;
+            }
+
+            // Виведення фінального результату
+            if (!errorOccurred)
+            {
+                Console.WriteLine($"\nІнтеграл функції на відрізку [{a:F2}, {b:F2}] становить {intgrl:F5}");
+            }
+
+            // --- Блок повтору (З ВИПРАВЛЕНОЮ УМОВОЮ) ---
+            Console.Write("\nПовторити розрахунок (y/у - так) ? ");
+            ConsoleKeyInfo pressedKey = Console.ReadKey();
+            Console.WriteLine(); 
+            
+            // ВИПРАВЛЕНО: Використовуємо || (логічне АБО) замість | або пробілу
+            if (pressedKey.KeyChar == 'y' || pressedKey.KeyChar == 'Y' || 
+                pressedKey.KeyChar == 'у' || pressedKey.KeyChar == 'У')
+            {
+                Console.Clear();
+                goto startOfCalculations; // Повернення до мітки
+            }
+        }
+    }
+}
