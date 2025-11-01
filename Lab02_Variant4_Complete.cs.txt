@@ -1,0 +1,82 @@
+using System;
+
+namespace LabWork2
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            // --- Блок введення даних (без змін) ---
+            Console.Write("Введіть початкове значення X1min: ");
+            string sX1min = Console.ReadLine();
+            double x1Min = double.Parse(sX1min);
+
+            Console.Write("Введіть кінцеве значення X1max: ");
+            string sX1max = Console.ReadLine();
+            double x1Max = double.Parse(sX1max);
+
+            Console.Write("Введіть приріст dX1: ");
+            string sdX1 = Console.ReadLine();
+            double dx1 = double.Parse(sdX1);
+
+            Console.Write("Введіть початкове значення X2min: ");
+            string sX2min = Console.ReadLine();
+            double x2Min = double.Parse(sX2min);
+
+            Console.Write("Введіть кінцеве значення X2max: ");
+            string sX2max = Console.ReadLine();
+            double x2Max = double.Parse(sX2max);
+
+            Console.Write("Введіть приріст dX2: ");
+            string sdX2 = Console.ReadLine();
+            double dx2 = double.Parse(sdX2);
+
+            // --- Блок обчислень (виправлено) ---
+            Console.WriteLine("\nРезультати обчислень:");
+            Console.WriteLine("x1\t\tx2\t\ty");
+            Console.WriteLine("-------------------------------------");
+
+            double y;
+            // Змінна для Завдання 2 (сума додатних кубів)
+            double sumPositiveCubes = 0; 
+            
+            double x1 = x1Min;
+            while (x1 <= x1Max)
+            {
+                double x2 = x2Min;
+                while (x2 <= x2Max)
+                {
+                    // Перевірка умови (корінь з від'ємного числа)
+                    if (x2 < 0)
+                    {
+                        // Завдання 3: Виводимо 2 знаки після коми (F2)
+                        Console.WriteLine("x1 = {0:F2}\t\tx2 = {1:F2}\t\tПОМИЛКА: x2 < 0 (корінь)", x1, x2);
+                    }
+                    else
+                    {
+                        // Обчислюємо y за формулою Варіанту 4
+                        y = Math.Cos(Math.Sqrt(x2) + 34 * Math.Sin(x1)) - 4 * Math.Sin(x2);
+                        
+                        // Завдання 3: Виводимо 2 знаки після коми (F2)
+                        Console.WriteLine("x1 = {0:F2}\t\tx2 = {1:F2}\t\ty = {2:F2}", x1, x2, y);
+
+                        // Завдання 2: Додаємо до суми, якщо y > 0
+                        if (y > 0)
+                        {
+                            sumPositiveCubes += Math.Pow(y, 3);
+                        }
+                    }
+                    
+                    x2 += dx2;
+                }
+                x1 += dx1;
+            }
+
+            // Виведення результату Завдання 2
+            Console.WriteLine("-------------------------------------");
+            Console.WriteLine("Сума додатних кубів значень y: {0:F2}", sumPositiveCubes);
+
+            Console.ReadKey();
+        }
+    }
+}
