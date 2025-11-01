@@ -1,0 +1,113 @@
+using System;
+
+public class Program
+{
+    static double Function(double x1, double x2)
+    {
+        return Math.Sin(x1 - Math.Pow(x2, 3) + Math.Sqrt(x1)) - 1.3 * Math.Pow(x1, 3);
+    }
+
+    public static void Main()
+    {
+        try
+        {
+            double x1min = GetDoubleFromConsole("Введіть X1min: ");
+            double x1max = GetDoubleFromConsole("Введіть X1max: ");
+            double dx1 = GetDoubleFromConsole("Введіть dX1: ");
+            double x2min = GetDoubleFromConsole("Введіть X2min: ");
+            double x2max = GetDoubleFromConsole("Введіть X2max: ");
+            double dx2 = GetDoubleFromConsole("Введіть dX2: ");
+
+            if (dx1 <= 0 || dx2 <= 0)
+            {
+                Console.WriteLine("Помилка: Крок (dX1, dX2) має бути додатним.");
+                return;
+            }
+
+            int rowCount = (int)Math.Truncate((x1max - x1min) / dx1) + 1;
+            int colCount = (int)Math.Truncate((x2max - x2min) / dx2) + 1;
+
+            double[,] results = new double[rowCount, colCount];
+
+            double sumOfNegativeSquares = 0.0;
+            double[] rowSums = new double[rowCount];
+            double[] colSums = new double[colCount];
+
+            double x1 = x1min;
+            for (int rw = 0; rw < rowCount; rw++)
+            {
+                double x2 = x2min;
+                for (int cl = 0; cl < colCount; cl++)
+                {
+                    double y = Function(x1, x2);
+                    results[rw, cl] = y;
+
+                    if (y < 0)
+                    {
+                        sumOfNegativeSquares += y * y;
+                    }
+
+                    rowSums[rw] += y;
+                    colSums[cl] += y;
+
+                    x2 += dx2;
+                }
+                x1 += dx1;
+            }
+
+            Console.WriteLine("\n--- Таблиця результатів ---");
+            string format = "{0,10:F3}";
+
+            Console.Write(String.Format("{0,10}", "X1 \\ X2"));
+            double temp_x2 = x2min;
+            for (int cl = 0; cl < colCount; cl++)
+            {
+                Console.Write(String.Format(format, temp_x2));
+                temp_x2 += dx2;
+            }
+            Console.WriteLine(String.Format(format, "SUM"));
+
+            double temp_x1 = x1min;
+            for (int rw = 0; rw < rowCount; rw++)
+            {
+                Console.Write(String.Format(format, temp_x1));
+                
+                for (int cl = 0; cl < colCount; cl++)
+                {
+                    Console.Write(String.Format(format, results[rw, cl]));
+                }
+
+                Console.WriteLine(String.Format(format, rowSums[rw]));
+                temp_x1 += dx1;
+            }
+
+            Console.Write(String.Format("{0,10}", "SUM"));
+            for (int cl = 0; cl < colCount; cl++)
+            {
+                Console.Write(String.Format(format, colSums[cl]));
+            }
+            Console.WriteLine();
+
+            Console.WriteLine("\n--- Додаткове завдання (Варіант 34) ---");
+            Console.WriteLine($"Сума квадратів від'ємних значень: {sumOfNegativeSquares:F3}");
+
+        }
+        catch (FormatException)
+        {
+            Console.WriteLine("Помилка! Введено не число.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Сталася помилка (можливо, корінь з від'ємного X1): {ex.Message}");
+        }
+
+        Console.WriteLine("\nНатисніть Enter для виходу...");
+        Console.ReadLine();
+    }
+
+    static double GetDoubleFromConsole(string prompt)
+    {
+        Console.Write(prompt);
+        return double.Parse(Console.ReadLine().Replace('.', ','));
+    }
+}
