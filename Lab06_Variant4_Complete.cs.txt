@@ -1,0 +1,110 @@
+using System;
+
+namespace Lab06Lib 
+{
+    public class Airplane
+    {
+        public string Model;
+        public string Airline;
+        public int PassengerCapacity;
+        public double MaxSpeed;
+        public int EngineCount;
+        public int YearOfManufacture;
+        public bool IsInternational;
+
+        public double GetPassengersPerEngine()
+        {
+            if (EngineCount == 0)
+            {
+                return 0;
+            }
+            return (double)PassengerCapacity / EngineCount;
+        }
+
+        public double PassengersPerEngine
+        {
+            get
+            {
+                return GetPassengersPerEngine();
+            }
+        }
+    }
+}
+
+namespace Lab06App
+{
+    using Lab06Lib; 
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.Write("Введіть кількість літаків: ");
+            int cntAirplanes = int.Parse(Console.ReadLine());
+
+            Airplane[] arrAirplanes = new Airplane[cntAirplanes];
+
+            for (int i = 0; i < cntAirplanes; i++)
+            {
+                Console.WriteLine();
+                Console.WriteLine($"--- Введення даних для літака №{i + 1} ---");
+                
+                Console.Write("Введіть модель літака: ");
+                string sModel = Console.ReadLine();
+
+                Console.Write("Введіть назву авіакомпанії: ");
+                string sAirline = Console.ReadLine();
+
+                Console.Write("Введіть пасажиромісткість (осіб): ");
+                string sPassengerCapacity = Console.ReadLine();
+
+                Console.Write("Введіть макс. швидкість (км/год): ");
+                string sMaxSpeed = Console.ReadLine();
+
+                Console.Write("Введіть кількість двигунів: ");
+                string sEngineCount = Console.ReadLine();
+
+                Console.Write("Введіть рік випуску: ");
+                string sYearOfManufacture = Console.ReadLine();
+
+                Console.Write("Літак міжнародний? (y-так, n-ні): ");
+                ConsoleKeyInfo keyIsInternational = Console.ReadKey();
+                Console.WriteLine(); 
+
+                Airplane tempPlane = new Airplane();
+
+                tempPlane.Model = sModel;
+                tempPlane.Airline = sAirline;
+                tempPlane.PassengerCapacity = int.Parse(sPassengerCapacity);
+                tempPlane.MaxSpeed = double.Parse(sMaxSpeed);
+                tempPlane.EngineCount = int.Parse(sEngineCount);
+                tempPlane.YearOfManufacture = int.Parse(sYearOfManufacture);
+                tempPlane.IsInternational = keyIsInternational.Key == ConsoleKey.Y ? true : false;
+
+                arrAirplanes[i] = tempPlane;
+            }
+
+            Console.WriteLine("\n\n--- СПИСОК УСІХ ЛІТАКІВ ---");
+            foreach (Airplane plane in arrAirplanes)
+            {
+                Console.WriteLine();
+                Console.WriteLine("-------------------------");
+                Console.WriteLine($"Дані про літак: {plane.Model}"); 
+                Console.WriteLine("-------------------------");
+                
+                Console.WriteLine("Авіакомпанія: " + plane.Airline);
+                Console.WriteLine("Пасажиромісткість: " + plane.PassengerCapacity);
+                Console.WriteLine("Макс. швидкість: " + plane.MaxSpeed.ToString("0.0") + " км/год");
+                Console.WriteLine("Кількість двигунів: " + plane.EngineCount);
+                Console.WriteLine("Рік випуску: " + plane.YearOfManufacture);
+                Console.WriteLine(plane.IsInternational ? "Виконує міжнародні рейси" : "Не виконує міжнародні рейси");
+                
+                Console.WriteLine();
+                
+                Console.WriteLine("Пасажирів на двигун (з властивості): " + plane.PassengersPerEngine.ToString("0.00"));
+            }
+
+            Console.ReadKey();
+        }
+    }
+}
