@@ -1,0 +1,165 @@
+using System;
+using System.Collections.Generic;
+
+// --- "Бібліотека" з ЛР №6 (Airplane.cs) ---
+// Це твій клас "Літак" з минулої роботи
+public class Airplane
+{
+    public string Model;
+    public string Airline;
+    public int PassengerCapacity;
+    public double MaxSpeed;
+    public int EngineCount;
+    public int YearOfManufacture;
+    public bool IsInternational;
+
+    // Властивість з ЛР №6
+    public double PassengersPerEngine
+    {
+        get
+        {
+            if (EngineCount == 0) return 0;
+            return (double)PassengerCapacity / EngineCount;
+        }
+    }
+}
+
+// --- Основна програма (імітує fMain.cs + fTown.cs) ---
+public class Program
+{
+    // Це наш "TextBox" з головного вікна, де зберігаються всі літаки
+    // [Імітація tbTownsInfo]
+    static List<Airplane> airplaneDatabase = new List<Airplane>();
+
+    public static void Main()
+    {
+        // Це цикл головного вікна (fMain)
+        while (true)
+        {
+            // 1. Показуємо вміст "tbTownsInfo"
+            DisplayAirplaneList();
+
+            // 2. Показуємо "кнопки" головного вікна
+            Console.WriteLine("--- Головне меню (fMain) ---");
+            Console.WriteLine("1. Додати літак (btnAddTown)");
+            Console.WriteLine("2. Закрити (btnClose)");
+            Console.Write("Ваш вибір: ");
+            string choice = Console.ReadLine();
+
+            if (choice == "1")
+            {
+                // Імітуємо btnAddTown_Click:
+                // Викликаємо друге вікно (fTown)
+                Airplane newPlane = ShowAddAirplaneDialog();
+
+                // Перевіряємо "DialogResult" (чи натиснув юзер "Ok")
+                if (newPlane != null) 
+                {
+                    airplaneDatabase.Add(newPlane);
+                    Console.WriteLine("\n...Літак успішно додано до списку!");
+                }
+                else 
+                {
+                    Console.WriteLine("\n...Додавання скасовано.");
+                }
+                Console.WriteLine("Натисніть Enter, щоб повернутись у головне меню...");
+                Console.ReadLine();
+            }
+            else if (choice == "2")
+            {
+                // Імітуємо btnClose_Click
+                Console.WriteLine("Роботу застосунку завершено.");
+                break; // Виходимо з циклу
+            }
+            else
+            {
+                Console.WriteLine("Невірний вибір. Спробуйте 1 або 2.");
+            }
+        }
+    }
+
+    // Цей метод імітує друге вікно (fTown)
+    public static Airplane ShowAddAirplaneDialog()
+    {
+        Console.Clear();
+        Console.WriteLine("--- Вікно: Додавання літака (fTown) ---");
+        
+        Airplane tempPlane = new Airplane();
+
+        try
+        {
+            // Імітуємо текстові поля з fTown
+            Console.Write("Введіть модель: ");
+            tempPlane.Model = Console.ReadLine();
+
+            Console.Write("Введіть авіакомпанію: ");
+            tempPlane.Airline = Console.ReadLine();
+
+            Console.Write("Пасажиромісткість: ");
+            tempPlane.PassengerCapacity = int.Parse(Console.ReadLine());
+
+            Console.Write("Макс. швидкість (км/год): ");
+            tempPlane.MaxSpeed = double.Parse(Console.ReadLine());
+
+            Console.Write("Кількість двигунів: ");
+            tempPlane.EngineCount = int.Parse(Console.ReadLine());
+
+            Console.Write("Рік випуску: ");
+            tempPlane.YearOfManufacture = int.Parse(Console.ReadLine());
+
+            // Імітуємо CheckBox'и
+            Console.Write("Міжнародний? (y/n): ");
+            tempPlane.IsInternational = (Console.ReadLine().ToLower() == "y");
+
+            // Імітуємо кнопки "Ok" / "Скасувати"
+            Console.Write("\nЗберегти цей літак? (y - Ok / n - Скасувати): ");
+            string saveChoice = Console.ReadLine().ToLower();
+
+            if (saveChoice == "y")
+            {
+                return tempPlane; // Повертаємо об'єкт (як DialogResult.OK)
+            }
+            else
+            {
+                return null; // Повертаємо null (як DialogResult.Cancel)
+            }
+        }
+        catch (FormatException)
+        {
+            Console.WriteLine("Помилка вводу! Дані не збережено.");
+            return null; // Автоматично "Скасувати" при помилці
+        }
+    }
+
+    // Цей метод виводить список літаків (вміст tbTownsInfo)
+    public static void DisplayAirplaneList()
+    {
+        Console.Clear(); // Очищуємо консоль, ніби оновили вікно
+        Console.WriteLine("--- Авіапарк (Головне вікно: tbTownsInfo) ---");
+        
+        if (airplaneDatabase.Count == 0)
+        {
+            Console.WriteLine("[Список літаків порожній]");
+        }
+        else
+        {
+            int i = 1;
+            foreach (var plane in airplaneDatabase)
+            {
+                // Форматуємо вивід, як у Лістингу 8.5
+                string isIntl = plane.IsInternational ? "Міжнародний" : "Внутрішній";
+                Console.WriteLine($"\n{i}. Модель: {plane.Model} ({plane.Airline})");
+                Console.WriteLine(
+                    $"   Пас: {plane.PassengerCapacity}, Двиг: {plane.EngineCount}, " +
+                    $"Рік: {plane.YearOfManufacture}, {isIntl}"
+                );
+                // Виводимо результат методу (як вимагає ЛР)
+                Console.WriteLine(
+                    $"   -> Пас/двиг: {plane.PassengersPerEngine:0.00}"
+                );
+                i++;
+            }
+        }
+        Console.WriteLine("-------------------------------------------\n");
+    }
+}
