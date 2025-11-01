@@ -1,0 +1,103 @@
+using System;
+
+namespace Lab05
+{
+    // Лістинг 5.1 (адаптований для Варіанту 4: "Літак")
+    // Описуємо клас, що представляє об'єкт "Літак"
+    class Airplane
+    {
+        // 1. Назва моделі (string)
+        public string Model;
+        // 2. Назва авіакомпанії (string)
+        public string Airline;
+        // 3. Пасажиромісткість (int)
+        public int PassengerCapacity;
+        // 4. Максимальна швидкість, км/год (double)
+        public double MaxSpeed;
+        // 5. Кількість двигунів (int)
+        public int EngineCount;
+        // 6. Рік випуску (int)
+        public int YearOfManufacture;
+        // 7. Чи виконує міжнародні рейси (bool)
+        public bool IsInternational;
+
+        // Метод класу (вимога: не менше одного)
+        // Обчислимо кількість пасажирів на один двигун
+        public double GetPassengersPerEngine()
+        {
+            // Перевірка, щоб уникнути ділення на нуль
+            if (EngineCount == 0)
+            {
+                return 0;
+            }
+            
+            // Виконуємо ділення з плаваючою комою
+            return (double)PassengerCapacity / EngineCount;
+        }
+    }
+
+    class Program
+    {
+        // Лістинг 5.2 (адаптований для Варіанту 4: "Літак")
+        static void Main(string[] args)
+        {
+            // 1. Введення даних
+            Console.Write("Введіть модель літака: ");
+            string sModel = Console.ReadLine();
+
+            Console.Write("Введіть назву авіакомпанії: ");
+            string sAirline = Console.ReadLine();
+
+            Console.Write("Введіть пасажиромісткість (осіб): ");
+            string sPassengerCapacity = Console.ReadLine();
+
+            Console.Write("Введіть макс. швидкість (км/год): ");
+            string sMaxSpeed = Console.ReadLine();
+
+            Console.Write("Введіть кількість двигунів: ");
+            string sEngineCount = Console.ReadLine();
+
+            Console.Write("Введіть рік випуску: ");
+            string sYearOfManufacture = Console.ReadLine();
+
+            Console.Write("Літак міжнародний? (y-так, n-ні): ");
+            ConsoleKeyInfo keyIsInternational = Console.ReadKey();
+            Console.WriteLine(); // Перехід на новий рядок
+
+            // 2. Створення об'єкта
+            Airplane myPlane = new Airplane();
+
+            // 3. Запис даних у поля об'єкта
+            myPlane.Model = sModel;
+            myPlane.Airline = sAirline;
+            myPlane.PassengerCapacity = int.Parse(sPassengerCapacity);
+            myPlane.MaxSpeed = double.Parse(sMaxSpeed);
+            myPlane.EngineCount = int.Parse(sEngineCount);
+            myPlane.YearOfManufacture = int.Parse(sYearOfManufacture);
+            myPlane.IsInternational = keyIsInternational.Key == ConsoleKey.Y ? true : false;
+
+            // 4. Виконання методу
+            double passengersPerEngine = myPlane.GetPassengersPerEngine();
+
+            // 5. Виведення результатів
+            Console.WriteLine();
+            Console.WriteLine("-------------------------");
+            Console.WriteLine("Дані про об'єкт 'Літак':");
+            Console.WriteLine("-------------------------");
+            
+            Console.WriteLine("Модель: " + myPlane.Model);
+            Console.WriteLine("Авіакомпанія: " + myPlane.Airline);
+            Console.WriteLine("Пасажиромісткість: " + myPlane.PassengerCapacity.ToString());
+            Console.WriteLine("Макс. швидкість: " + myPlane.MaxSpeed.ToString("0.0") + " км/год");
+            Console.WriteLine("Кількість двигунів: " + myPlane.EngineCount.ToString());
+            Console.WriteLine("Рік випуску: " + myPlane.YearOfManufacture.ToString());
+            Console.WriteLine(myPlane.IsInternational ? "Виконує міжнародні рейси" : "Не виконує міжнародні рейси");
+            
+            Console.WriteLine();
+            Console.WriteLine("--- Результат роботи методу ---");
+            Console.WriteLine("Кількість пасажирів на один двигун: " + passengersPerEngine.ToString("0.00"));
+
+            Console.ReadKey();
+        }
+    }
+}
