@@ -1,0 +1,146 @@
+using System;
+using System.Collections.Generic; // Потрібно для List<>
+using System.IO; // Потрібно для FileStream та BinaryReader
+using System.Text; // Потрібно для Encoding
+
+/// <summary>
+/// Клас "Літак" (з Лаб 10), доповнений інтерфейсом IComparable (з Лаб 14).
+/// </summary>
+public class Airplane : IComparable
+{
+    // Властивості з Лаб 10
+    public string Model { get; set; }
+    public string Airline { get; set; }
+    public int PassengerCapacity { get; set; }
+    public double MaxSpeed { get; set; }
+    public int EngineCount { get; set; }
+    public int YearOfManufacture { get; set; }
+    public bool IsInternational { get; set; }
+
+    // Конструктор за замовчуванням (потрібен для читання з файлу)
+    public Airplane() { }
+
+    // Конструктор для додавання нового літака
+    public Airplane(string model, string airline, int capacity, double speed, int engines, int year, bool isIntl)
+    {
+        Model = model;
+        Airline = airline;
+        PassengerCapacity = capacity;
+        MaxSpeed = speed;
+        EngineCount = engines;
+        YearOfManufacture = year;
+        IsInternational = isIntl;
+    }
+
+    /// <summary>
+    /// (ЛР 14) Реалізація інтерфейсу IComparable.
+    /// Вказує, як сортувати об'єкти (за Моделлю).
+    /// </summary>
+    public int CompareTo(object obj)
+    {
+        Airplane p = obj as Airplane;
+        // Сортуємо за Моделлю (аналогічно до сортування за Name у зразку)
+        return string.Compare(this.Model, p.Model);
+    }
+
+    /// <summary>
+    /// Метод для виводу інформації про літак (аналог Info() з ЛР14).
+    /// </summary>
+    public string GetInfo()
+    {
+        // Форматуємо вивід, щоб він був схожий на зразок
+        return $"Модель: {Model}, Авіалінія: {Airline}, Рік: {YearOfManufacture}";
+    }
+}
+
+/// <summary>
+/// Головна програма Лабораторної роботи №14.
+/// </summary>
+public class Program
+{
+    // Колекція для зберігання літаків (використовуємо List)
+    static List<Airplane> airplanes = new List<Airplane>();
+    const string binaryFileName = "airplanes.dat"; // Файл з даними з Лаб 13
+
+    /// <summary>
+    /// Метод для виведення списку літаків (аналог PrintTowns)
+    /// </summary>
+    static void PrintAirplanes()
+    {
+        foreach (Airplane plane in airplanes)
+        {
+            Console.WriteLine(plane.GetInfo());
+        }
+        Console.WriteLine(); // Порожній рядок для розділення
+    }
+
+    public static void Main()
+    {
+        Console.OutputEncoding = Encoding.UTF8;
+        Console.InputEncoding = Encoding.UTF8;
+
+        // --- 1. Читання даних з бінарного файлу ---
+        Console.WriteLine("Читаємо дані з файлу...\n");
+        if (!File.Exists(binaryFileName))
+        {
+            Console.WriteLine($"Помилка: Файл {binaryFileName} не знайдено. Спочатку запустіть ЛР13, щоб зберегти файл.");
+            Console.ReadKey();
+            return;
+        }
+
+        try
+        {
+            using (BinaryReader br = new BinaryReader(File.Open(binaryFileName, FileMode.Open)))
+            {
+                // Читаємо, поки не досягнемо кінця файлу
+                while (br.BaseStream.Position < br.BaseStream.Length)
+                {
+                    Airplane plane = new Airplane();
+
+                    // Читаємо у тому ж порядку, в якому записували (з Лаб 13)
+                    plane.Model = br.ReadString();
+                    plane.Airline = br.ReadString();
+                    plane.PassengerCapacity = br.ReadInt32();
+                    plane.MaxSpeed = br.ReadDouble();
+                    plane.EngineCount = br.ReadInt32();
+                    plane.YearOfManufacture = br.ReadInt32();
+                    plane.IsInternational = br.ReadBoolean();
+                    
+                    airplanes.Add(plane);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Сталася помилка при читанні файлу: {ex.Message}");
+            Console.ReadKey();
+            return;
+        }
+
+        // --- 2. Відображення несортованих даних ---
+        Console.WriteLine($"Несортований перелік літаків: {airplanes.Count}");
+        PrintAirplanes();
+
+        // --- 3. Сортування та відображення ---
+        Console.WriteLine($"Сортований перелік літаків: {airplanes.Count}");
+        airplanes.Sort();
+        PrintAirplanes();
+
+        // --- 4. Додавання нового об'єкта ---
+        Console.WriteLine($"Додаємо новий запис: Boeing 747");
+        // Створюємо новий літак (аналогічно до Town townodesa)
+        Airplane newPlane = new Airplane("Boeing 747", "Lufthansa", 416, 920, 4, 1989, true);
+        airplanes.Add(newPlane);
+        airplanes.Sort(); // Сортуємо знову
+        Console.WriteLine($"Перелік літаків: {airplanes.Count}");
+        PrintAirplanes();
+
+        // --- 5. Видалення об'єкта ---
+        Console.WriteLine($"Видаляємо останнє значення");
+        airplanes.RemoveAt(airplanes.Count - 1);
+        Console.WriteLine($"Перелік літаків: {airplanes.Count}");
+        PrintAirplanes();
+
+        Console.ReadKey();
+    }
+}
