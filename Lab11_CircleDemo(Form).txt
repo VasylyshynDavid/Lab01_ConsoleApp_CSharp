@@ -1,0 +1,339 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Drawing2D; // Потрібно для згладжування
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace Lab11_CircleDemo
+{
+    public partial class Form1 : Form
+    {
+        // 1. СПИСОК (БАЗА ДАНИХ) ДЛЯ ЗБЕРІГАННЯ ВСІХ ЕМБЛЕМ
+        private List<CEmblem> emblems = new List<CEmblem>();
+
+        // 2. ЗМІННА, ЩО ЗБЕРІГАЄ ОБРАНУ ЕМБЛEMУ
+        private CEmblem currentEmblem = null;
+
+        // 3. Константи для руху та розміру
+        private const int MoveStep = 10; // Звичайний крок
+        private const int FastMoveStep = 30; // Швидкий крок
+        private const double ResizeFactor = 1.2; // Множник для +
+        private const double ShrinkFactor = 0.8; // Множник для -
+
+        // 4. Поле для відстеження кута обертання
+        private int currentRotation = 0;
+
+        public Form1()
+        {
+            InitializeComponent();
+            
+            // --- РУЧНЕ ПІДКЛЮЧЕННЯ ОБРОБНИКІВ ПОДІЙ ---
+            // "Прив'язуємо" кнопки до коду. Це 100% надійний спосіб.
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.button3.Click += new System.EventHandler(this.button3_Click);
+            this.button4.Click += new System.EventHandler(this.button4_Click);
+            this.button5.Click += new System.EventHandler(this.button5_Click);
+            this.button6.Click += new System.EventHandler(this.button6_Click);
+            this.button7.Click += new System.EventHandler(this.button7_Click);
+            this.button8.Click += new System.EventHandler(this.button8_Click);
+            this.button9.Click += new System.EventHandler(this.button9_Click);
+            this.button10.Click += new System.EventHandler(this.button10_Click);
+            this.button11.Click += new System.EventHandler(this.button11_Click);
+            this.button12.Click += new System.EventHandler(this.button12_Click);
+            this.button13.Click += new System.EventHandler(this.button13_Click);
+
+            // Також прив'яжемо ComboBox та саму панель
+            this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
+            this.panel1.Paint += new System.Windows.Forms.PaintEventHandler(this.panel1_Paint);
+        }
+
+        // --- ОСНОВНІ МЕТОДИ КЕРУВАННЯ ---
+        private void RefreshUI()
+        {
+            if (comboBox1 != null)
+            {
+                comboBox1.Items.Clear();
+                for (int i = 0; i < emblems.Count; i++)
+                {
+                    comboBox1.Items.Add($"Емблема №{i + 1}");
+                }
+            }
+            if (panel1 != null)
+            {
+                panel1.Refresh();
+            }
+        }
+
+        // --- ВАЖЛИВО: ГОЛОВНИЙ ОБРОБНИК МАЛЮВАННЯ ---
+        private void panel1_Paint(object sender, PaintEventArgs e)
+        {
+            if (panel1 != null)
+            {
+                e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                foreach (var emblem in emblems)
+                {
+                    emblem.Draw(e.Graphics);
+                }
+            }
+        }
+
+        // --- ОБРОБНИКИ ПОДІЙ КНОПОК ---
+
+        // 1. Кнопка "Створити новий об'єкт" (button1)
+        private void button1_Click(object sender, EventArgs e)
+        {
+            int size = 80;
+            int x = panel1.Width / 2;
+            int y = panel1.Height / 2;
+            
+            // Беремо поточний кут і збільшуємо його для наступного разу
+            int angle = currentRotation;
+            currentRotation += 45; // <-- РІВНО 45 ГРАДУСІВ
+
+            // Передаємо кут в конструктор
+            CEmblem newEmblem = new CEmblem(x, y, size, angle);
+            emblems.Add(newEmblem);
+            
+            RefreshUI();
+            
+            if (emblems.Count > 0)
+            {
+                comboBox1.SelectedIndex = emblems.Count - 1;
+            }
+        }
+
+        // 2. Кнопка "Приховати об'єкт" (button2)
+        private void button2_Click(object sender, EventArgs e)
+        {
+            if (currentEmblem != null)
+            {
+                currentEmblem.Hide();
+                panel1.Refresh();
+            }
+        }
+
+        // 3. Кнопка "Показати об'єкт" (button3)
+        private void button3_Click(object sender, EventArgs e)
+        {
+            if (currentEmblem != null)
+            {
+                currentEmblem.Show();
+                panel1.Refresh();
+            }
+        }
+
+        // 4. Кнопка Збільшити "+" (button4)
+        private void button4_Click(object sender, EventArgs e)
+        {
+            if (currentEmblem != null)
+            {
+                currentEmblem.Resize(ResizeFactor);
+                panel1.Refresh();
+            }
+        }
+
+        // 5. Кнопка Зменшити "-" (button5)
+        private void button5_Click(object sender, EventArgs e)
+        {
+            if (currentEmblem != null)
+            {
+                currentEmblem.Resize(ShrinkFactor);
+                panel1.Refresh();
+            }
+        }
+
+        // 6. Кнопка Вгору (button6)
+        private void button6_Click(object sender, EventArgs e)
+        {
+            if (currentEmblem != null)
+            {
+                currentEmblem.Move(0, -MoveStep);
+                panel1.Refresh();
+            }
+        }
+
+        // 7. Кнопка Швидко Вгору (button7)
+        private void button7_Click(object sender, EventArgs e)
+        {
+            if (currentEmblem != null)
+            {
+                currentEmblem.Move(0, -FastMoveStep);
+                panel1.Refresh();
+            }
+        }
+
+        // 8. Кнопка Вниз (button8)
+        private void button8_Click(object sender, EventArgs e)
+        {
+            if (currentEmblem != null)
+            {
+                currentEmblem.Move(0, MoveStep);
+                panel1.Refresh();
+            }
+        }
+
+        // 9. Кнопка Швидко Вниз (button9)
+        private void button9_Click(object sender, EventArgs e)
+        {
+            if (currentEmblem != null)
+            {
+                currentEmblem.Move(0, FastMoveStep);
+                panel1.Refresh();
+            }
+        }
+
+        // 10. Кнопка Вліво (button10)
+        private void button10_Click(object sender, EventArgs e)
+        {
+            if (currentEmblem != null)
+            {
+                currentEmblem.Move(-MoveStep, 0);
+                panel1.Refresh();
+            }
+        }
+
+        // 11. Кнопка Швидко Вліво (button11)
+        private void button11_Click(object sender, EventArgs e)
+        {
+            if (currentEmblem != null)
+            {
+                currentEmblem.Move(-FastMoveStep, 0);
+                panel1.Refresh();
+            }
+        }
+
+        // 12. Кнопка Вправо (button12)
+        private void button12_Click(object sender, EventArgs e)
+        {
+            if (currentEmblem != null)
+            {
+                currentEmblem.Move(MoveStep, 0);
+                panel1.Refresh();
+            }
+        }
+
+        // 13. Кнопка Швидко Вправо (button13)
+        private void button13_Click(object sender, EventArgs e)
+        {
+            if (currentEmblem != null)
+            {
+                currentEmblem.Move(FastMoveStep, 0);
+                panel1.Refresh();
+            }
+        }
+
+        // Вибір у ComboBox ('comboBox1')
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            int index = comboBox1.SelectedIndex;
+            if (index >= 0 && index < emblems.Count)
+            {
+                currentEmblem = emblems[index];
+            }
+        }
+
+        // Подія завантаження форми
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            if (panel1 != null)
+            {
+                panel1.BorderStyle = BorderStyle.FixedSingle;
+            }
+        }
+
+        private string GetDebuggerDisplay()
+        {
+            return ToString();
+        }
+    }
+
+    // ----- КЛАС "ЕМБЛЕМА" (Варіант 4: Коло + ОДИН трикутник + Обертання) -----
+    public class CEmblem
+    {
+        private int x;
+        private int y;
+        private int size;
+        private bool isVisible;
+        private int rotationAngle; // Поле для зберігання кута
+        private int CircleRadius => size;
+
+        // Конструктор, що приймає кут
+        public CEmblem(int startX, int startY, int startSize, int startAngle)
+        {
+            this.x = startX;
+            this.y = startY;
+            this.size = Math.Max(startSize, 20);
+            this.isVisible = true;
+            this.rotationAngle = startAngle; // Зберігаємо кут
+        }
+
+        // Конвертує градуси в радіани
+        private double ToRadians(double angleInDegrees)
+        {
+            return (angleInDegrees * Math.PI) / 180.0;
+        }
+
+        // --- ГОЛОВНИЙ МЕТОД МАЛЮВАННЯ (з обертанням) ---
+        public void Draw(Graphics g)
+        {
+            if (!this.isVisible) return;
+            Pen pen = new Pen(Color.Red, 2);
+
+            // 1. Малюємо Коло (воно не обертається)
+            g.DrawEllipse(pen, x - CircleRadius, y - CircleRadius, CircleRadius * 2, CircleRadius * 2);
+
+            // 2. Малюємо ОДИН трикутник (вершиною вгору)
+            
+            Point[] triPoints = new Point[3];
+            
+            // Початкові кути: 270, 30, 150 (додаємо наш кут обертання)
+            triPoints[0] = new Point(
+                x + (int)(CircleRadius * Math.Cos(ToRadians(270 + rotationAngle))),
+                y + (int)(CircleRadius * Math.Sin(ToRadians(270 + rotationAngle)))
+            );
+            triPoints[1] = new Point(
+                x + (int)(CircleRadius * Math.Cos(ToRadians(30 + rotationAngle))),
+                y + (int)(CircleRadius * Math.Sin(ToRadians(30 + rotationAngle)))
+            );
+            triPoints[2] = new Point(
+                x + (int)(CircleRadius * Math.Cos(ToRadians(150 + rotationAngle))),
+                y + (int)(CircleRadius * Math.Sin(ToRadians(150 + rotationAngle)))
+            );
+            
+            g.DrawPolygon(pen, triPoints);
+        }
+
+        // --- Методи керування (без змін) ---
+        public void Move(int dX, int dY)
+        {
+            this.x += dX;
+            this.y += dY;
+        }
+
+        public void Resize(double factor)
+        {
+            int newSize = (int)(this.size * factor);
+            if (newSize > 10 && newSize < 500)
+            {
+                this.size = newSize;
+            }
+        }
+
+        public void Show()
+        {
+            this.isVisible = true;
+        }
+
+        public void Hide()
+        {
+            this.isVisible = false;
+        }
+    }
+}
