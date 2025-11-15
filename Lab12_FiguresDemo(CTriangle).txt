@@ -1,0 +1,67 @@
+using System;
+using System.Drawing;
+
+namespace Lab11_CircleDemo
+{
+    public class CTriangle : CFigure
+    {
+        private int _size;
+        private int rotationAngle;
+        public int Size
+        {
+            get { return _size; }
+            set
+            {
+                _size = value;
+                if (_size < 5) _size = 5;
+                if (_size > 200) _size = 200;
+            }
+        }
+        private int CircleRadius => _size;
+
+        public CTriangle(int x, int y, int size, int rotation)
+        {
+            this.X = x;
+            this.Y = y;
+            this.Size = size;
+            this.rotationAngle = rotation;
+        }
+
+        private double ToRadians(double angleInDegrees)
+        {
+            return (angleInDegrees * Math.PI) / 180.0;
+        }
+
+        public override void Draw(Graphics g)
+        {
+            if (!this.IsVisible) return;
+
+            Pen pen = new Pen(Color.Red, 2);
+
+            Point[] triPoints = new Point[3];
+            triPoints[0] = new Point(
+                X + (int)(CircleRadius * Math.Cos(ToRadians(270 + rotationAngle))),
+                Y + (int)(CircleRadius * Math.Sin(ToRadians(270 + rotationAngle)))
+            );
+            triPoints[1] = new Point(
+                X + (int)(CircleRadius * Math.Cos(ToRadians(30 + rotationAngle))),
+                Y + (int)(CircleRadius * Math.Sin(ToRadians(30 + rotationAngle)))
+            );
+            triPoints[2] = new Point(
+                X + (int)(CircleRadius * Math.Cos(ToRadians(150 + rotationAngle))),
+                Y + (int)(CircleRadius * Math.Sin(ToRadians(150 + rotationAngle)))
+            );
+            g.DrawPolygon(pen, triPoints);
+        }
+
+        public override void Expand(int dr)
+        {
+            this.Size += dr;
+        }
+
+        public override void collapse(int dr)
+        {
+            this.Size -= dr;
+        }
+    }
+}

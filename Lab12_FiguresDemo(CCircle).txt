@@ -1,0 +1,45 @@
+using System;
+using System.Drawing;
+
+namespace Lab11_CircleDemo
+{
+    public class CCircle : CFigure
+    {
+        private int _radius;
+        public int Radius
+        {
+            get { return _radius; }
+            set
+            {
+                _radius = value;
+                if (_radius < 5) _radius = 5;
+                if (_radius > 200) _radius = 200;
+            }
+        }
+
+        public CCircle(int x, int y, int radius, int rotation)
+        {
+            this.X = x;
+            this.Y = y;
+            this.Radius = radius;
+        }
+
+        public override void Draw(Graphics g)
+        {
+            if (!this.IsVisible) return;
+
+            Pen pen = new Pen(Color.Red, 2);
+            g.DrawEllipse(pen, X - Radius, Y - Radius, Radius * 2, Radius * 2);
+        }
+
+        public override void Expand(int dr)
+        {
+            this.Radius += dr;
+        }
+
+        public override void collapse(int dr)
+        {
+            this.Radius -= dr;
+        }
+    }
+}
