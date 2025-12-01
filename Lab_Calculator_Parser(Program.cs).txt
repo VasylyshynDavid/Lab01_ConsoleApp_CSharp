@@ -9,8 +9,8 @@ namespace ConsoleCalculator
             // Щоб українські літери відображались коректно
             Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-            Console.WriteLine("=== Лабораторна робота: Парсер виразів ===");
-            Console.WriteLine("Студент: [Твоє Прізвище]"); // <-- Впиши сюди своє ім'я
+            Console.WriteLine("=== Самостійна робота: Парсер виразів ===");
+            Console.WriteLine("Студент: Василишин Давид"); // <-- ВЖЕ ВИПРАВЛЕНО!
             Console.WriteLine("Підтримувані операції: +, -, *, /, ( )");
             Console.WriteLine("УВАГА: Степінь позначається символом '&' (наприклад 2 & 3)");
             Console.WriteLine("Введіть 'exit' для виходу.\n");
