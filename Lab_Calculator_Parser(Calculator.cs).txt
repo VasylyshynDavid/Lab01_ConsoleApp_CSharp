@@ -1,116 +1,42 @@
 using System;
-using System.Collections.Generic;
-using System.Globalization;
 
 namespace ConsoleCalculator
 {
-    public class Calculator
+    class Program
     {
-        public double Calculate(string expression)
+        static void Main(string[] args)
         {
-            var tokenizer = new Tokenizer();
-            var tokens = tokenizer.Tokenize(expression);
+            // Щоб українські літери відображались коректно
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-            var values = new Stack<double>(); // Стек чисел
-            var ops = new Stack<Token>();     // Стек операцій
+            Console.WriteLine("=== Самостійна робота: Парсер виразів ===");
+            Console.WriteLine("Студент: Василишин Давид"); // <-- ВЖЕ ВИПРАВЛЕНО!
+            Console.WriteLine("Підтримувані операції: +, -, *, /, ( )");
+            Console.WriteLine("УВАГА: Степінь позначається символом '&' (наприклад 2 & 3)");
+            Console.WriteLine("Введіть 'exit' для виходу.\n");
 
-            for (int i = 0; i < tokens.Count; i++)
+            Calculator calc = new Calculator();
+
+            while (true)
             {
-                var token = tokens[i];
+                Console.Write("Введіть вираз > ");
+                string input = Console.ReadLine();
 
-                if (token.Type == TokenType.Number)
+                if (string.IsNullOrWhiteSpace(input)) continue;
+                if (input.ToLower() == "exit") break;
+
+                try
                 {
-                    // InvariantCulture, щоб "5.5" читалось коректно на будь-якому ПК
-                    values.Push(double.Parse(token.Value, CultureInfo.InvariantCulture));
+                    double result = calc.Calculate(input);
+                    Console.WriteLine($"Результат: {result}");
                 }
-                else if (token.Type == TokenType.OpenParen)
+                catch (Exception ex)
                 {
-                    ops.Push(token);
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"Помилка: {ex.Message}");
+                    Console.ResetColor();
                 }
-                else if (token.Type == TokenType.CloseParen)
-                {
-                    // Виконуємо все в дужках
-                    while (ops.Count > 0 && ops.Peek().Type != TokenType.OpenParen)
-                    {
-                        values.Push(ApplyOp(ops.Pop(), values));
-                    }
-                    ops.Pop(); // Викидаємо '('
-                }
-                else if (IsOperator(token.Type))
-                {
-                    // Перевірка на унарний мінус (наприклад, -5)
-                    if (token.Type == TokenType.Minus)
-                    {
-                        bool isUnary = (i == 0) || (tokens[i - 1].Type == TokenType.OpenParen);
-                        if (isUnary)
-                        {
-                            values.Push(0);
-                        }
-                    }
-
-                    // Перевірка пріоритетів
-                    while (ops.Count > 0 && HasPrecedence(token.Type, ops.Peek().Type))
-                    {
-                        values.Push(ApplyOp(ops.Pop(), values));
-                    }
-                    ops.Push(token);
-                }
-            }
-
-            // Виконуємо операції, що залишились
-            while (ops.Count > 0)
-            {
-                values.Push(ApplyOp(ops.Pop(), values));
-            }
-
-            if (values.Count == 0) return 0;
-            return values.Pop();
-        }
-
-        private bool IsOperator(TokenType type)
-        {
-            return type == TokenType.Plus || type == TokenType.Minus ||
-                   type == TokenType.Multiply || type == TokenType.Divide ||
-                   type == TokenType.Power;
-        }
-
-        // Логіка пріоритетів: чи має op2 вищий пріоритет, ніж op1?
-        private bool HasPrecedence(TokenType op1, TokenType op2)
-        {
-            if (op2 == TokenType.OpenParen || op2 == TokenType.CloseParen) return false;
-            return GetPriority(op2) >= GetPriority(op1);
-        }
-
-        private int GetPriority(TokenType type)
-        {
-            switch (type)
-            {
-                case TokenType.Plus:
-                case TokenType.Minus: return 1;
-                case TokenType.Multiply:
-                case TokenType.Divide: return 2;
-                case TokenType.Power: return 3; // Степінь найважливіший
-                default: return 0;
-            }
-        }
-
-        private double ApplyOp(Token op, Stack<double> values)
-        {
-            if (values.Count < 2) throw new Exception("Помилка у виразі: не вистачає чисел.");
-
-            double b = values.Pop();
-            double a = values.Pop();
-
-            switch (op.Type)
-            {
-                case TokenType.Plus: return a + b;
-                case TokenType.Minus: return a - b;
-                case TokenType.Multiply: return a * b;
-                case TokenType.Divide:
-                    if (b == 0) throw new DivideByZeroException("Ділення на нуль!");
-                    return a / b;
-                case TokenType.Power: return Math.Pow(a, b); // Піднесення до степеня
-                default: return 0;
+                Console.WriteLine();
             }
         }
     }
