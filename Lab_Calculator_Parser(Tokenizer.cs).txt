@@ -1,0 +1,108 @@
+using System;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+
+namespace ConsoleCalculator
+{
+    // Типи токенів (число, операція, дужка)
+    public enum TokenType
+    {
+        Number,
+        Plus,
+        Minus,
+        Multiply,
+        Divide,
+        Power,      // Степінь
+        OpenParen,  // (
+        CloseParen  // )
+    }
+
+    // Один "шматочок" виразу
+    public class Token
+    {
+        public TokenType Type { get; }
+        public string Value { get; }
+
+        public Token(TokenType type, string value)
+        {
+            Type = type;
+            Value = value;
+        }
+
+        public override string ToString() => $"{Type}: {Value}";
+    }
+
+    // Правило для пошуку токена
+    public class TokenDefinition
+    {
+        public TokenType Type { get; }
+        public Regex Regex { get; }
+
+        public TokenDefinition(TokenType type, string pattern)
+        {
+            Type = type;
+            Regex = new Regex(pattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        }
+    }
+
+    public class Tokenizer
+    {
+        private List<TokenDefinition> _definitions;
+
+        public Tokenizer()
+        {
+            _definitions = new List<TokenDefinition>
+            {
+                // Числа (цілі та дробові)
+                new TokenDefinition(TokenType.Number, @"^\d+(\.\d+)?"),
+                
+                // УВАГА: Тут тепер амперсанд (&) для степеня
+                new TokenDefinition(TokenType.Power, @"^\&"),
+
+                new TokenDefinition(TokenType.Plus, @"^\+"),
+                new TokenDefinition(TokenType.Minus, @"^\-"),
+                new TokenDefinition(TokenType.Multiply, @"^\*"),
+                new TokenDefinition(TokenType.Divide, @"^/"),
+                new TokenDefinition(TokenType.OpenParen, @"^\("),
+                new TokenDefinition(TokenType.CloseParen, @"^\)")
+            };
+        }
+
+        public List<Token> Tokenize(string input)
+        {
+            var tokens = new List<Token>();
+            string remainingText = input.Trim();
+
+            while (!string.IsNullOrEmpty(remainingText))
+            {
+                bool matchFound = false;
+
+                // Пропускаємо пробіли на початку
+                if (char.IsWhiteSpace(remainingText[0]))
+                {
+                    remainingText = remainingText.Substring(1);
+                    continue;
+                }
+
+                foreach (var def in _definitions)
+                {
+                    var match = def.Regex.Match(remainingText);
+                    if (match.Success)
+                    {
+                        tokens.Add(new Token(def.Type, match.Value));
+                        remainingText = remainingText.Substring(match.Length);
+                        matchFound = true;
+                        break;
+                    }
+                }
+
+                if (!matchFound)
+                {
+                    throw new Exception($"Невідомий символ: {remainingText[0]}");
+                }
+            }
+
+            return tokens;
+        }
+    }
+}

@@ -1,0 +1,43 @@
+using System;
+
+namespace ConsoleCalculator
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            // Щоб українські літери відображались коректно
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+
+            Console.WriteLine("=== Лабораторна робота: Парсер виразів ===");
+            Console.WriteLine("Студент: [Твоє Прізвище]"); // <-- Впиши сюди своє ім'я
+            Console.WriteLine("Підтримувані операції: +, -, *, /, ( )");
+            Console.WriteLine("УВАГА: Степінь позначається символом '&' (наприклад 2 & 3)");
+            Console.WriteLine("Введіть 'exit' для виходу.\n");
+
+            Calculator calc = new Calculator();
+
+            while (true)
+            {
+                Console.Write("Введіть вираз > ");
+                string input = Console.ReadLine();
+
+                if (string.IsNullOrWhiteSpace(input)) continue;
+                if (input.ToLower() == "exit") break;
+
+                try
+                {
+                    double result = calc.Calculate(input);
+                    Console.WriteLine($"Результат: {result}");
+                }
+                catch (Exception ex)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"Помилка: {ex.Message}");
+                    Console.ResetColor();
+                }
+                Console.WriteLine();
+            }
+        }
+    }
+}
