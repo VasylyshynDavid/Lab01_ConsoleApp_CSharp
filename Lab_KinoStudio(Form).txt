@@ -1,0 +1,159 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.IO;
+using System.Xml.Serialization;
+
+namespace KinoStudio_Lab
+{
+    // --- ГОЛОВНА ФОРМА ---
+    public partial class Form1 : Form
+    {
+        private BindingList<Film> films = new BindingList<Film>();
+
+        public Form1()
+        {
+            InitializeComponent();
+            dataGridView1.DataSource = films;
+
+            // ==========================================
+            // ТУТ ЗАПИСАНО 20 ФІЛЬМІВ. ВОНИ З'ЯВЛЯТЬСЯ ПРИ ЗАПУСКУ!
+            // ==========================================
+
+            // Українські
+            films.Add(new Film { Title = "Тіні забутих предків", DirectorName = "Параджанов С.", Country = "Україна", Year = 1964, Cost = 50000, Income = 100000, Genre = "Драма" });
+            films.Add(new Film { Title = "Мавка. Лісова пісня", DirectorName = "Рубчинський О.", Country = "Україна", Year = 2023, Cost = 5000000, Income = 15000000, Genre = "Анімація" });
+            films.Add(new Film { Title = "Люксембург, Люксембург", DirectorName = "Лукіч А.", Country = "Україна", Year = 2022, Cost = 800000, Income = 1200000, Genre = "Комедія" });
+            films.Add(new Film { Title = "Довбуш", DirectorName = "Санін О.", Country = "Україна", Year = 2023, Cost = 3000000, Income = 2500000, Genre = "Історичний" });
+            films.Add(new Film { Title = "Плем'я", DirectorName = "Слабошпицький М.", Country = "Україна", Year = 2014, Cost = 1000000, Income = 5000000, Genre = "Драма" });
+            films.Add(new Film { Title = "Кіборги", DirectorName = "Сеітаблаєв А.", Country = "Україна", Year = 2017, Cost = 1800000, Income = 850000, Genre = "Військовий" });
+            films.Add(new Film { Title = "Мої думки тихі", DirectorName = "Лукіч А.", Country = "Україна", Year = 2019, Cost = 400000, Income = 1000000, Genre = "Комедія" });
+
+            // Світові
+            films.Add(new Film { Title = "Аватар", DirectorName = "Кемерон Д.", Country = "США", Year = 2009, Cost = 237000000, Income = 2923000000, Genre = "Фантастика" });
+            films.Add(new Film { Title = "Титанік", DirectorName = "Кемерон Д.", Country = "США", Year = 1997, Cost = 200000000, Income = 2200000000, Genre = "Мелодрама" });
+            films.Add(new Film { Title = "Месники: Фінал", DirectorName = "Руссо Е.", Country = "США", Year = 2019, Cost = 356000000, Income = 2798000000, Genre = "Фантастика" });
+            films.Add(new Film { Title = "Оппенгеймер", DirectorName = "Нолан К.", Country = "США", Year = 2023, Cost = 100000000, Income = 950000000, Genre = "Біографія" });
+            films.Add(new Film { Title = "Барбі", DirectorName = "Гервіг Г.", Country = "США", Year = 2023, Cost = 145000000, Income = 1440000000, Genre = "Комедія" });
+            films.Add(new Film { Title = "Інтерстеллар", DirectorName = "Нолан К.", Country = "США", Year = 2014, Cost = 165000000, Income = 701000000, Genre = "Фантастика" });
+            films.Add(new Film { Title = "Джокер", DirectorName = "Філліпс Т.", Country = "США", Year = 2019, Cost = 55000000, Income = 1074000000, Genre = "Трилер" });
+
+            // Класика та інше
+            films.Add(new Film { Title = "Хрещений батько", DirectorName = "Коппола Ф.", Country = "США", Year = 1972, Cost = 6000000, Income = 246000000, Genre = "Кримінал" });
+            films.Add(new Film { Title = "Кримінальне чтиво", DirectorName = "Тарантіно К.", Country = "США", Year = 1994, Cost = 8000000, Income = 213000000, Genre = "Кримінал" });
+            films.Add(new Film { Title = "Матриця", DirectorName = "Вачовскі", Country = "США", Year = 1999, Cost = 63000000, Income = 463000000, Genre = "Фантастика" });
+            films.Add(new Film { Title = "Паразити", DirectorName = "Пон Джун Хо", Country = "Корея", Year = 2019, Cost = 11000000, Income = 263000000, Genre = "Трилер" });
+            films.Add(new Film { Title = "1+1", DirectorName = "Накаш О.", Country = "Франція", Year = 2011, Cost = 10000000, Income = 426000000, Genre = "Комедія" });
+            films.Add(new Film { Title = "Дюна", DirectorName = "Вільнев Д.", Country = "США", Year = 2021, Cost = 165000000, Income = 402000000, Genre = "Фантастика" });
+        }
+
+        // --- КНОПКА: ЗБЕРЕГТИ ---
+        private void btnSave_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                XmlSerializer formatter = new XmlSerializer(typeof(BindingList<Film>));
+                using (FileStream fs = new FileStream("films.xml", FileMode.Create))
+                {
+                    formatter.Serialize(fs, films);
+                }
+                MessageBox.Show("Дані успішно збережено у файл films.xml!");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Помилка при збереженні: " + ex.Message);
+            }
+        }
+
+        // --- КНОПКА: ЗАВАНТАЖИТИ ---
+        private void btnLoad_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (File.Exists("films.xml"))
+                {
+                    XmlSerializer formatter = new XmlSerializer(typeof(BindingList<Film>));
+                    using (FileStream fs = new FileStream("films.xml", FileMode.Open))
+                    {
+                        films = (BindingList<Film>)formatter.Deserialize(fs);
+                        // Оновлюємо прив'язку до таблиці
+                        dataGridView1.DataSource = films;
+                    }
+                    MessageBox.Show("Дані завантажено!");
+                }
+                else
+                {
+                    MessageBox.Show("Файл не знайдено! Спочатку збережіть дані.");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Помилка при завантаженні: " + ex.Message);
+            }
+        }
+
+        // --- КНОПКА: СТАТИСТИКА (ПРИБУТОК ЗА ПЕРІОД) ---
+        private void btnStats_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Зчитуємо роки з текстових полів
+                int startYear = int.Parse(txtYearStart.Text);
+                int endYear = int.Parse(txtYearEnd.Text);
+
+                // Рахуємо суму Income для фільмів у цьому діапазоні
+                decimal totalIncome = films
+                    .Where(f => f.Year >= startYear && f.Year <= endYear)
+                    .Sum(f => f.Income);
+
+                MessageBox.Show($"Загальний прибуток фільмів з {startYear} по {endYear} рік: {totalIncome}$");
+            }
+            catch
+            {
+                MessageBox.Show("Будь ласка, введіть коректні роки (цифри) у поля!");
+            }
+        }
+
+        // --- КНОПКА: УСПІШНІ ФІЛЬМИ (Бюджет <= Прибуток) ---
+        private void btnProfitable_Click(object sender, EventArgs e)
+        {
+            // Рахуємо кількість фільмів, де витрати менші або рівні прибутку
+            int count = films.Count(f => f.Cost <= f.Income);
+            MessageBox.Show($"Кількість фільмів, що окупилися: {count}");
+        }
+
+        // --- КНОПКА: СОРТУВАТИ ---
+        private void btnSort_Click(object sender, EventArgs e)
+        {
+            // Сортуємо список за роком випуску
+            var sortedList = new BindingList<Film>(films.OrderBy(f => f.Year).ToList());
+
+            // Замінюємо список і оновлюємо таблицю
+            films = sortedList;
+            dataGridView1.DataSource = films;
+
+            MessageBox.Show("Таблицю відсортовано за роком випуску!");
+        }
+    }
+
+    // --- КЛАС ДЛЯ ЗБЕРІГАННЯ ДАНИХ ПРО ФІЛЬМ ---
+    public class Film
+    {
+        public string Title { get; set; }        // Назва
+        public string DirectorName { get; set; } // Режисер
+        public string Country { get; set; }      // Країна
+        public int Year { get; set; }            // Рік випуску
+        public decimal Cost { get; set; }        // Витрати
+        public decimal Income { get; set; }      // Прибуток
+        public string Genre { get; set; }        // Жанр
+
+        // Порожній конструктор
+        public Film() { }
+    }
+}
